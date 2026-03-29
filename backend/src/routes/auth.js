@@ -126,4 +126,31 @@ router.get('/me', (req, res) => {
   }
 });
 
+// 获取家长的孩子列表
+router.get('/children', (req, res) => {
+  const authHeader = req.headers.authorization;
+  
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: '未登录' });
+  }
+
+  const token = authHeader.split(' ')[1];
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    
+    if (decoded.role !== 'parent') {
+      return res.status(403).json({ error: '只有家长可以查看' });
+    }
+
+    const children = db.prepare(`
+      SELECT id, username, nickname, avatar FROM users WHERE parent_id = ?
+    `).all(decoded.userId);
+
+    res.json({ children });
+  } catch (err) {
+    return res.status(401).json({ error: 'token 无效或已过期' });
+  }
+});
+
 export default router;
