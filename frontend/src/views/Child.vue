@@ -240,7 +240,7 @@ const logout = () => {
 onMounted(async () => {
   await loadPet()
   await loadTasks()
-  loadInventory()
+  await loadInventory()
 })
 </script>
 
