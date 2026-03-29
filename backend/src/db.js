@@ -1,17 +1,48 @@
-import Database from 'better-sqlite3'
+import initSqlJs from 'sql.js'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
 const dbPath = join(__dirname, '../data/pet.db')
-const db = new Database(dbPath)
+const dataDir = dirname(dbPath)
 
-db.pragma('journal_mode = WAL')
+// 确保数据目录存在
+if (!existsSync(dataDir)) {
+  mkdirSync(dataDir, { recursive: true })
+}
+
+// 初始化 sql.js
+const SQL = await initSqlJs()
+
+// 加载或创建数据库
+let db
+if (existsSync(dbPath)) {
+  const buffer = readFileSync(dbPath)
+  db = new SQL.Database(buffer)
+} else {
+  db = new SQL.Database()
+}
+
+// 保存数据库到文件的辅助函数
+function saveDatabase() {
+  const data = db.export()
+  const buffer = Buffer.from(data)
+  writeFileSync(dbPath, buffer)
+}
+
+// 包装 db.run 以自动保存
+const originalRun = db.run.bind(db)
+db.run = function(...args) {
+  const result = originalRun(...args)
+  saveDatabase()
+  return result
+}
 
 // 初始化表
-db.exec(`
+db.run(`
   CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT UNIQUE NOT NULL,
@@ -21,8 +52,10 @@ db.exec(`
     nickname TEXT,
     avatar TEXT DEFAULT 'default',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  );
+  )
+`)
 
+db.run(`
   CREATE TABLE IF NOT EXISTS pets (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL UNIQUE,
@@ -37,8 +70,10 @@ db.exec(`
     is_alive INTEGER DEFAULT 1,
     last_fed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  );
+  )
+`)
 
+db.run(`
   CREATE TABLE IF NOT EXISTS tasks (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
@@ -50,15 +85,59 @@ db.exec(`
     status TEXT DEFAULT 'pending' CHECK(status IN ('pending', 'completed', 'claimed')),
     completed_at DATETIME,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  );
+  )
+`)
 
+db.run(`
   CREATE TABLE IF NOT EXISTS inventory (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
     item_type TEXT NOT NULL,
     item_name TEXT,
     quantity INTEGER DEFAULT 0
-  );
+  )
 `)
+
+// 兼容 better-sqlite3 API
+db.exec = function(sql) {
+  db.run(sql)
+  saveDatabase()
+}
+
+db.prepare = function(sql) {
+  return {
+    run: function(...params) {
+      db.run(sql, params)
+      saveDatabase()
+      return { changes: db.getRowsModified() }
+    },
+    get: function(...params) {
+      const stmt = db.prepare(sql)
+      stmt.bind(params)
+      if (stmt.step()) {
+        const row = stmt.getAsObject()
+        stmt.free()
+        return row
+      }
+      stmt.free()
+      return undefined
+    },
+    all: function(...params) {
+      const results = []
+      const stmt = db.prepare(sql)
+      stmt.bind(params)
+      while (stmt.step()) {
+        results.push(stmt.getAsObject())
+      }
+      stmt.free()
+      return results
+    }
+  }
+}
+
+// pragma 模拟（sql.js 不支持 WAL）
+db.pragma = function(_pragma) {
+  // sql.js 不支持 WAL，忽略
+}
 
 export default db
