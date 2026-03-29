@@ -8,4 +8,4 @@ JWT_SECRET = "pet-keeping-secret-2024"
 [[d1_databases]]
 binding = "DB"
 database_name = "pet-keeping"
-database_id = "will-be-created"
+database_id = "placeholder"
