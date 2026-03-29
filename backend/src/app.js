@@ -3,6 +3,7 @@ import cors from 'cors';
 import authRoutes from './routes/auth.js';
 import petRoutes from './routes/pet.js';
 import taskRoutes from './routes/task.js';
+import inventoryRoutes from './routes/inventory.js';
 import { startHungerJob } from './jobs/hunger.js';
 
 const app = express();
