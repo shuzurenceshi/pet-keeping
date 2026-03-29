@@ -193,7 +193,7 @@ const feedPet = async () => {
   try {
     const res = await axios.post('/api/pet/feed', {}, authHeader())
     pet.value = res.data.pet
-    foodCount.value--
+    loadInventory() // 重新加载库存
     alert(res.data.message)
   } catch (err) {
     alert(err.response?.data?.error || '喂食失败')
