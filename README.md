@@ -253,18 +253,40 @@ pet-keeping/
 
 ---
 
-## 启动方式
+## 快速启动
 
 ```bash
-# 后端
-cd backend
-npm install
-npm run dev
+# 方式1：一键启动
+cd /root/projects/myapp/pet-keeping
+chmod +x start.sh
+./start.sh
 
-# 前端
-cd frontend
-npm install
-npm run dev
+# 方式2：分别启动
+# 后端 (端口 3001)
+cd backend && npm install && npm run dev
+
+# 前端 (端口 5173)
+cd frontend && npm install && npm run dev
 ```
 
 访问: http://localhost:5173
+
+### 使用流程
+
+1. **家长先注册**
+   - 用户名: `parent1`, 密码: `123456`, 角色: 家长
+   - 记住显示的 **账号 ID**（如: 1）
+
+2. **孩子注册**
+   - 用户名: `child1`, 密码: `123456`, 角色: 孩子
+   - 填写家长账号 ID（上一步的 1）
+
+3. **孩子登录**
+   - 领养宠物（选猫/狗）
+   - 查看任务列表
+   - 完成任务 → 领取奖励（食物+经验）
+   - 喂养宠物
+
+4. **家长登录**
+   - 发布任务给孩子
+   - 查看孩子完成情况
