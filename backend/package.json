@@ -12,5 +12,8 @@
     "bcryptjs": "^2.4.3",
     "jsonwebtoken": "^9.0.2",
     "better-sqlite3": "^9.4.3"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }
