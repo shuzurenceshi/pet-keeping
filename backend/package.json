@@ -3,15 +3,16 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "node --watch src/app.js",
-    "start": "node src/app.js"
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "dev:local": "node --watch src/app.js"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "better-sqlite3": "^9.4.3",
+    "hono": "^4.1.0",
     "bcryptjs": "^2.4.3",
-    "jsonwebtoken": "^9.0.2",
-    "cors": "^2.8.5",
-    "node-cron": "^3.0.3"
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "wrangler": "^3.30.0"
   }
 }
