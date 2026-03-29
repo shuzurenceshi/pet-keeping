@@ -358,6 +358,6 @@ app.get('/api/inventory', async (c) => {
 app.get('/api/health', (c) => c.json({ status: 'ok', timestamp: new Date().toISOString() }))
 
 const port = process.env.PORT || 3001
-console.log(`🚀 Server running on http://localhost:${port}`)
+console.log(`🚀 Server running on port ${port}`)
 
 serve({ fetch: app.fetch, port })
