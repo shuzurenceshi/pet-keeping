@@ -107,9 +107,8 @@ const authHeader = () => ({
 
 const loadChildren = async () => {
   try {
-    const res = await axios.get('/api/auth/me', authHeader())
-    // 查询所有 parent_id = 当前用户的孩子
-    // 这里需要后端支持，暂时简化
+    const res = await axios.get('/api/auth/children', authHeader())
+    children.value = res.data.children
   } catch (err) {
     console.error(err)
   }
