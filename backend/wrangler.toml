@@ -1,0 +1,11 @@
+name = "pet-keeping-api"
+main = "src/worker.js"
+compatibility_date = "2024-01-01"
+
+[vars]
+JWT_SECRET = "pet-keeping-secret-2024"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "pet-keeping"
+database_id = "will-be-created"
