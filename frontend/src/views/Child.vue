@@ -164,15 +164,13 @@ const loadTasks = async () => {
 }
 
 const loadInventory = async () => {
-  // 简化：直接从任务奖励累算
-  let food = 5 // 初始5份
-  tasks.value.forEach(t => {
-    if (t.status === 'claimed') {
-      food += t.reward_food
-    }
-  })
-  // 减去喂食次数 - 这里简化，实际应该从后端获取
-  foodCount.value = Math.max(0, food)
+  try {
+    const res = await axios.get('/api/inventory', authHeader())
+    const foodItem = res.data.items.find(i => i.item_type === 'food')
+    foodCount.value = foodItem ? foodItem.quantity : 0
+  } catch (err) {
+    console.error(err)
+  }
 }
 
 const adoptPet = async () => {
