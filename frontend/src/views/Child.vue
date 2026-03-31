@@ -160,6 +160,7 @@ const pet = ref(null)
 const tasks = ref([])
 const foodCount = ref(0)
 const showAdopt = ref(false)
+const animation = ref(null)
 const newPet = ref({
   name: '',
   type: 'cat'
