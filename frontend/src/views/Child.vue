@@ -455,6 +455,109 @@ onMounted(async () => {
   color: white;
 }
 
+/* 互动按钮样式 */
+.interactions {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.action-btn.bath {
+  background: linear-gradient(135deg, #74b9ff, #0984e3);
+  color: white;
+}
+
+.action-btn.read {
+  background: linear-gradient(135deg, #a29bfe, #6c5ce7);
+  color: white;
+}
+
+.action-btn.exercise {
+  background: linear-gradient(135deg, #fd79a8, #e84393);
+  color: white;
+}
+
+.action-btn.play {
+  background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+  color: #333;
+}
+
+/* 动画效果 */
+.animation-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.animation-content {
+  font-size: 100px;
+  opacity: 0;
+  transform: scale(0.5);
+}
+
+.animation.feed .animation-content {
+  animation: feedAnim 1s ease-out forwards;
+}
+
+.animation.bath .animation-content {
+  animation: bathAnim 1.5s ease-out forwards;
+}
+
+.animation.read .animation-content {
+  animation: readAnim 1.2s ease-out forwards;
+}
+
+.animation.exercise .animation-content {
+  animation: exerciseAnim 1s ease-out forwards;
+}
+
+.animation.play .animation-content {
+  animation: playAnim 1.5s ease-out forwards;
+}
+
+@keyframes feedAnim {
+  0% { opacity: 1; transform: scale(0.5) translateY(0); }
+  50% { opacity: 1; transform: scale(1.2) translateY(-20px); }
+  100% { opacity: 0; transform: scale(1.5) translateY(-50px); }
+}
+
+@keyframes bathAnim {
+  0% { opacity: 1; transform: scale(0.5) rotate(0deg); }
+  30% { opacity: 1; transform: scale(1) rotate(-10deg); }
+  60% { opacity: 1; transform: scale(1.1) rotate(10deg); }
+  100% { opacity: 0; transform: scale(0.5) rotate(0deg); }
+}
+
+@keyframes readAnim {
+  0% { opacity: 1; transform: translateX(-100px) scale(1); }
+  50% { opacity: 1; transform: translateX(0) scale(1.2); }
+  100% { opacity: 0; transform: translateX(100px) scale(1); }
+}
+
+@keyframes exerciseAnim {
+  0% { opacity: 1; transform: translateX(-50px) scale(1); }
+  25% { opacity: 1; transform: translateX(50px) scale(1.1); }
+  50% { opacity: 1; transform: translateX(-50px) scale(1); }
+  75% { opacity: 1; transform: translateX(50px) scale(1.1); }
+  100% { opacity: 0; transform: translateX(0) scale(1); }
+}
+
+@keyframes playAnim {
+  0% { opacity: 1; transform: scale(0.3) rotate(0deg); }
+  25% { opacity: 1; transform: scale(1) rotate(90deg); }
+  50% { opacity: 1; transform: scale(1.3) rotate(180deg); }
+  75% { opacity: 1; transform: scale(1) rotate(270deg); }
+  100% { opacity: 0; transform: scale(0.5) rotate(360deg); }
+}
+
 .no-pet {
   padding: 40px 0;
 }
