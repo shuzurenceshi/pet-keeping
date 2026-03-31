@@ -510,78 +510,312 @@ onMounted(async () => {
 }
 
 /* 动画效果 */
-.animation-overlay {
-  position: fixed;
+.pet-3d-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 20px 0;
+  perspective: 1000px;
+}
+
+.pet-3d {
+  transform-style: preserve-3d;
+  transition: transform 0.3s;
+}
+
+.pet-sprite-3d {
+  font-size: 80px;
+  animation: idle 2s ease-in-out infinite;
+}
+
+.pet-sprite-3d.dead {
+  filter: grayscale(1);
+  animation: none;
+}
+
+/* 3D 动画 - 洗澡 */
+.pet-3d-container.bath .pet-3d {
+  animation: bath3d 2s ease-in-out;
+}
+
+@keyframes bath3d {
+  0%, 100% { transform: rotateY(0deg) scale(1); }
+  25% { transform: rotateY(-20deg) scale(1.1); }
+  50% { transform: rotateY(20deg) scale(1.1); }
+  75% { transform: rotateY(-15deg) scale(1.05); }
+}
+
+/* 3D 动画 - 读书 */
+.pet-3d-container.read .pet-3d {
+  animation: read3d 2s ease-in-out;
+}
+
+@keyframes read3d {
+  0%, 100% { transform: rotateX(0deg) translateY(0); }
+  25% { transform: rotateX(-10deg) translateY(-5px); }
+  50% { transform: rotateX(10deg) translateY(-3px); }
+  75% { transform: rotateX(-5deg) translateY(-2px); }
+}
+
+/* 3D 动画 - 运动 */
+.pet-3d-container.exercise .pet-3d {
+  animation: exercise3d 1.5s ease-in-out;
+}
+
+@keyframes exercise3d {
+  0%, 100% { transform: translateX(0) scale(1); }
+  20% { transform: translateX(-30px) scale(1.1); }
+  40% { transform: translateX(30px) scale(1); }
+  60% { transform: translateX(-20px) scale(1.1); }
+  80% { transform: translateX(20px) scale(1); }
+}
+
+/* 3D 动画 - 玩耍 */
+.pet-3d-container.play .pet-3d {
+  animation: play3d 2s ease-in-out;
+}
+
+@keyframes play3d {
+  0% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(90deg) scale(1.2); }
+  50% { transform: rotate(180deg) scale(1); }
+  75% { transform: rotate(270deg) scale(1.2); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+/* 3D 动画 - 喂食 */
+.pet-3d-container.feed .pet-3d {
+  animation: feed3d 1.5s ease-in-out;
+}
+
+@keyframes feed3d {
+  0%, 100% { transform: scale(1); }
+  30% { transform: scale(1.3); }
+  50% { transform: scale(1.1) translateY(-10px); }
+  70% { transform: scale(1.2); }
+}
+
+/* 基础动画 */
+@keyframes idle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+/* 特效容器 */
+.effects {
+  position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   pointer-events: none;
-  z-index: 1000;
 }
 
-.animation-content {
-  font-size: 100px;
+/* 洗澡特效 - 水滴 */
+.bath-effects .droplet {
+  position: absolute;
+  font-size: 24px;
+  animation: splash 1s ease-out forwards;
+  animation-delay: var(--delay);
+  left: 50%;
+  top: 30%;
+}
+
+@keyframes splash {
+  0% { transform: translate(0, 0) scale(0); opacity: 1; }
+  50% { transform: translate(var(--x), -60px) scale(1.2); opacity: 1; }
+  100% { transform: translate(var(--x), -100px) scale(0.5); opacity: 0; }
+}
+
+.bath-effects .bubbles {
+  position: absolute;
+  font-size: 40px;
+  animation: bubbleFloat 2s ease-out;
+  top: 20%;
+  left: 60%;
+}
+
+@keyframes bubbleFloat {
+  0% { transform: translateY(0) scale(0); opacity: 0; }
+  20% { transform: translateY(-20px) scale(1); opacity: 1; }
+  100% { transform: translateY(-80px) scale(1.5); opacity: 0; }
+}
+
+/* 读书特效 */
+.read-effects .book {
+  position: absolute;
+  font-size: 36px;
+  animation: bookFloat 2s ease-out;
+  top: 10%;
+  left: 20%;
+}
+
+.read-effects .lightbulb {
+  position: absolute;
+  font-size: 32px;
+  animation: lightUp 1.5s ease-out 0.5s forwards;
+  top: 5%;
+  right: 25%;
   opacity: 0;
-  transform: scale(0.5);
 }
 
-.animation.feed .animation-content {
-  animation: feedAnim 1s ease-out forwards;
+@keyframes bookFloat {
+  0% { transform: translateY(50px) rotate(-20deg); opacity: 0; }
+  30% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(-30px); opacity: 0; }
 }
 
-.animation.bath .animation-content {
-  animation: bathAnim 1.5s ease-out forwards;
+@keyframes lightUp {
+  0% { transform: scale(0) rotate(-30deg); opacity: 0; }
+  50% { transform: scale(1.5) rotate(10deg); opacity: 1; }
+  100% { transform: scale(1.2) rotate(0deg); opacity: 0; }
 }
 
-.animation.read .animation-content {
-  animation: readAnim 1.2s ease-out forwards;
+.read-effects .star {
+  position: absolute;
+  font-size: 20px;
+  animation: twinkle 1s ease-out forwards;
+  animation-delay: var(--delay);
+  top: 10%;
+  left: 50%;
 }
 
-.animation.exercise .animation-content {
-  animation: exerciseAnim 1s ease-out forwards;
+@keyframes twinkle {
+  0% { transform: scale(0); opacity: 0; }
+  50% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(0); opacity: 0; }
 }
 
-.animation.play .animation-content {
-  animation: playAnim 1.5s ease-out forwards;
+/* 运动特效 */
+.exercise-effects .sweat {
+  position: absolute;
+  font-size: 20px;
+  animation: sweatDrop 1s ease-out forwards;
+  animation-delay: var(--delay);
+  left: calc(50% + var(--x));
+  top: 20%;
 }
 
-@keyframes feedAnim {
-  0% { opacity: 1; transform: scale(0.5) translateY(0); }
-  50% { opacity: 1; transform: scale(1.2) translateY(-20px); }
-  100% { opacity: 0; transform: scale(1.5) translateY(-50px); }
+@keyframes sweatDrop {
+  0% { transform: translateY(0); opacity: 0; }
+  30% { transform: translateY(10px); opacity: 1; }
+  100% { transform: translateY(50px); opacity: 0; }
 }
 
-@keyframes bathAnim {
-  0% { opacity: 1; transform: scale(0.5) rotate(0deg); }
-  30% { opacity: 1; transform: scale(1) rotate(-10deg); }
-  60% { opacity: 1; transform: scale(1.1) rotate(10deg); }
-  100% { opacity: 0; transform: scale(0.5) rotate(0deg); }
+.exercise-effects .heart-beat {
+  position: absolute;
+  font-size: 28px;
+  animation: heartbeat 1s ease-out 1s;
+  top: 15%;
+  right: 30%;
 }
 
-@keyframes readAnim {
-  0% { opacity: 1; transform: translateX(-100px) scale(1); }
-  50% { opacity: 1; transform: translateX(0) scale(1.2); }
-  100% { opacity: 0; transform: translateX(100px) scale(1); }
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  25% { transform: scale(1.3); }
+  50% { transform: scale(1); }
+  75% { transform: scale(1.2); }
 }
 
-@keyframes exerciseAnim {
-  0% { opacity: 1; transform: translateX(-50px) scale(1); }
-  25% { opacity: 1; transform: translateX(50px) scale(1.1); }
-  50% { opacity: 1; transform: translateX(-50px) scale(1); }
-  75% { opacity: 1; transform: translateX(50px) scale(1.1); }
-  100% { opacity: 0; transform: translateX(0) scale(1); }
+/* 玩耍特效 */
+.play-effects .ball {
+  position: absolute;
+  font-size: 40px;
+  animation: ballBounce 1.5s ease-out;
+  top: 30%;
+  left: 20%;
 }
 
-@keyframes playAnim {
-  0% { opacity: 1; transform: scale(0.3) rotate(0deg); }
-  25% { opacity: 1; transform: scale(1) rotate(90deg); }
-  50% { opacity: 1; transform: scale(1.3) rotate(180deg); }
-  75% { opacity: 1; transform: scale(1) rotate(270deg); }
-  100% { opacity: 0; transform: scale(0.5) rotate(360deg); }
+@keyframes ballBounce {
+  0% { transform: translateX(0) translateY(0); }
+  25% { transform: translateX(100px) translateY(-50px); }
+  50% { transform: translateX(150px) translateY(0); }
+  75% { transform: translateX(100px) translateY(-30px); }
+  100% { transform: translateX(50px) translateY(0); opacity: 0; }
+}
+
+.play-effects .sparkle {
+  position: absolute;
+  font-size: 24px;
+  animation: sparkleOut 1.5s ease-out forwards;
+  animation-delay: var(--delay);
+  top: 50%;
+  left: 50%;
+  --dist: 80px;
+}
+
+@keyframes sparkleOut {
+  0% { 
+    transform: translate(0, 0) scale(0); 
+    opacity: 0; 
+  }
+  30% { 
+    transform: translate(
+      calc(cos(var(--angle)) * var(--dist)), 
+      calc(sin(var(--angle)) * var(--dist))
+    ) scale(1.2); 
+    opacity: 1; 
+  }
+  100% { 
+    transform: translate(
+      calc(cos(var(--angle)) * var(--dist) * 1.5), 
+      calc(sin(var(--angle)) * var(--dist) * 1.5)
+    ) scale(0.5); 
+    opacity: 0; 
+  }
+}
+
+/* 喂食特效 */
+.feed-effects .food {
+  position: absolute;
+  font-size: 40px;
+  animation: foodFall 1.5s ease-out;
+  top: -20%;
+  left: 50%;
+}
+
+@keyframes foodFall {
+  0% { transform: translateY(-50px) rotate(-20deg); opacity: 0; }
+  40% { transform: translateY(20px) rotate(10deg); opacity: 1; }
+  60% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(10px) scale(1.5); opacity: 0; }
+}
+
+.feed-effects .heart {
+  position: absolute;
+  font-size: 30px;
+  animation: heartFloat 1.5s ease-out 0.3s;
+  top: 30%;
+  left: 55%;
+}
+
+@keyframes heartFloat {
+  0% { transform: translateY(0) scale(0); opacity: 0; }
+  30% { transform: translateY(-20px) scale(1.2); opacity: 1; }
+  100% { transform: translateY(-60px) scale(0.8); opacity: 0; }
+}
+
+/* 底部消息提示 */
+.action-message {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 24px;
+  font-size: 14px;
+  max-width: 80%;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.3s;
+  z-index: 1001;
+}
+
+.action-message.show {
+  opacity: 1;
 }
 
 .no-pet {
