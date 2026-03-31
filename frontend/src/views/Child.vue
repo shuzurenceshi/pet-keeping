@@ -244,10 +244,11 @@ const feedPet = async () => {
   try {
     const res = await axios.post('/api/pet/feed', {}, authHeader())
     pet.value = res.data.pet
-    loadInventory() // 重新加载库存
-    alert(res.data.message)
+    loadInventory()
+    showAnimation('feed', res.data.message)
   } catch (err) {
-    alert(err.response?.data?.error || '喂食失败')
+    actionMessage.value = err.response?.data?.error || '喂食失败'
+    setTimeout(() => actionMessage.value = null, 2000)
   }
 }
 
