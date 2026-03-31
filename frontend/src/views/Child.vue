@@ -14,186 +14,109 @@
       
       <div v-else class="pet-container">
         <!-- 3D 宠物容器 -->
-        <div class="pet-3d-container" :class="animation">
+        <div class="pet-3d-wrapper" :class="animation">
           <div class="pet-3d">
-            <div class="pet-sprite-3d" :class="{ dead: !pet.is_alive }">
+            <div class="pet-sprite" :class="{ dead: !pet.is_alive }">
               {{ pet.type === 'cat' ? '🐱' : '🐶' }}
             </div>
           </div>
-          <!-- 特效 -->
-          <div v-if="animation === 'bath'" class="effects bath-effects">
-            <span v-for="i in 8" :key="'d'+i" class="droplet" :style="{ '--delay': i * 0.1 + 's', '--x': (Math.random() * 100 - 50) + 'px' }">💧</span>
-            <span class="bubbles">🫧</span>
+          <!-- 洗澡特效 -->
+          <div v-if="animation === 'bath'" class="fx bath-fx">
+            <span v-for="i in 8" :key="'d'+i" class="drop" :style="{ '--d': i*0.1+'s', '--x': (i*15-60)+'px' }">💧</span>
+            <span class="bubble">🫧</span>
+            <span class="bubble b2">🫧</span>
           </div>
-          <div v-if="animation === 'read'" class="effects read-effects">
+          <!-- 读书特效 -->
+          <div v-if="animation === 'read'" class="fx read-fx">
             <span class="book">📖</span>
-            <span class="lightbulb">💡</span>
-            <span v-for="i in 3" :key="'s'+i" class="star" :style="{ '--delay': i * 0.2 + 's' }">✨</span>
+            <span class="idea">💡</span>
+            <span v-for="i in 3" :key="'s'+i" class="spark" :style="{ '--d': i*0.2+'s' }">✨</span>
           </div>
-          <div v-if="animation === 'exercise'" class="effects exercise-effects">
-            <span v-for="i in 5" :key="'sw'+i" class="sweat" :style="{ '--delay': i * 0.15 + 's', '--x': (i * 20 - 50) + 'px' }">💨</span>
-            <span class="heart-beat">💓</span>
+          <!-- 运动特效 -->
+          <div v-if="animation === 'exercise'" class="fx run-fx">
+            <span v-for="i in 4" :key="'r'+i" class="puff" :style="{ '--d': i*0.2+'s' }">💨</span>
+            <span class="pulse">💓</span>
           </div>
-          <div v-if="animation === 'play'" class="effects play-effects">
+          <!-- 玩耍特效 -->
+          <div v-if="animation === 'play'" class="fx play-fx">
             <span class="ball">🎾</span>
-            <span v-for="i in 6" :key="'sp'+i" class="sparkle" :style="{ '--delay': i * 0.1 + 's', '--angle': i * 60 + 'deg' }">⭐</span>
+            <span v-for="i in 6" :key="'st'+i" class="star" :style="{ '--d': i*0.1+'s', '--a': (i*60)+'deg' }">⭐</span>
           </div>
-          <div v-if="animation === 'feed'" class="effects feed-effects">
-            <span class="food">🍖</span>
-            <span class="heart">❤️</span>
+          <!-- 喂食特效 -->
+          <div v-if="animation === 'feed'" class="fx feed-fx">
+            <span class="meat">🍖</span>
+            <span class="love">❤️</span>
           </div>
         </div>
-        
+
         <div class="pet-info">
           <h3>{{ pet.name }}</h3>
-          <p class="level">Lv.{{ pet.level }} ({{ pet.exp }}/{{ pet.level * 50 }} exp)</p>
+          <p class="level">Lv.{{ pet.level }} ({{ pet.exp }}/{{ pet.level * 50 }})</p>
         </div>
         
         <div class="stats">
           <div class="stat">
-            <span class="stat-label">❤️ 生命</span>
-            <div class="stat-bar">
-              <div class="stat-fill hp" :style="{ width: pet.hp + '%' }"></div>
-            </div>
-            <span class="stat-value">{{ pet.hp }}</span>
+            <span class="label">❤️</span>
+            <div class="bar"><div class="fill hp" :style="{ width: pet.hp + '%' }"></div></div>
+            <span class="val">{{ pet.hp }}</span>
           </div>
           <div class="stat">
-            <span class="stat-label">🍖 饱食</span>
-            <div class="stat-bar">
-              <div class="stat-fill hunger" :style="{ width: pet.hunger + '%' }"></div>
-            </div>
-            <span class="stat-value">{{ pet.hunger }}</span>
+            <span class="label">🍖</span>
+            <div class="bar"><div class="fill hunger" :style="{ width: pet.hunger + '%' }"></div></div>
+            <span class="val">{{ pet.hunger }}</span>
           </div>
           <div class="stat">
-            <span class="stat-label">😊 心情</span>
-            <div class="stat-bar">
-              <div class="stat-fill mood" :style="{ width: pet.mood + '%' }"></div>
-            </div>
-            <span class="stat-value">{{ pet.mood }}</span>
+            <span class="label">😊</span>
+            <div class="bar"><div class="fill mood" :style="{ width: pet.mood + '%' }"></div></div>
+            <span class="val">{{ pet.mood }}</span>
           </div>
         </div>
 
-        <!-- 互动按钮 -->
-        <div class="interactions">
-          <button class="action-btn feed" @click="feedPet" :disabled="!pet.is_alive || foodCount <= 0">
-            🍖 喂食 ({{ foodCount }})
-          </button>
-          <button class="action-btn bath" @click="bathPet" :disabled="!pet.is_alive">
-            🛁 洗澡
-          </button>
-          <button class="action-btn read" @click="readPet" :disabled="!pet.is_alive">
-            📚 读书
-          </button>
-          <button class="action-btn exercise" @click="exercisePet" :disabled="!pet.is_alive">
-            🏃 运动
-          </button>
-          <button class="action-btn play" @click="playPet" :disabled="!pet.is_alive">
-            🎾 玩耍
-          </button>
-          <button v-if="!pet.is_alive" class="action-btn revive" @click="revivePet">
-            ✨ 复活
-          </button>
+        <div class="actions">
+          <button class="act-btn feed" @click="feedPet" :disabled="!pet.is_alive || foodCount <= 0">🍖 {{ foodCount }}</button>
+          <button class="act-btn bath" @click="bathPet" :disabled="!pet.is_alive">🛁 洗澡</button>
+          <button class="act-btn read" @click="readPet" :disabled="!pet.is_alive">📚 读书</button>
+          <button class="act-btn run" @click="exercisePet" :disabled="!pet.is_alive">🏃 运动</button>
+          <button class="act-btn play" @click="playPet" :disabled="!pet.is_alive">🎾 玩耍</button>
+          <button v-if="!pet.is_alive" class="act-btn revive" @click="revivePet">✨ 复活</button>
         </div>
 
-        <!-- 3D 动画效果 -->
-        <div class="pet-3d-container" :class="animation">
-          <div class="pet-3d">
-            <div class="pet-sprite-3d" :class="{ dead: !pet.is_alive }">
-              {{ pet.type === 'cat' ? '🐱' : '🐶' }}
-            </div>
-          </div>
-          <!-- 特效 -->
-          <div v-if="animation === 'bath'" class="effects bath-effects">
-            <span v-for="i in 8" :key="i" class="splash droplet" :style="{ '--delay': i * 0.1 + 's', '--x': (Math.random() * 100 - 50) + 'px' }">💧</span>
-            <span class="bubbles">🫧</span>
-          </div>
-          <div v-if="animation === 'read'" class="effects read-effects">
-            <span class="book float">📖</span>
-            <span class="lightbulb">💡</span>
-            <span v-for="i in 3" :key="i" class="star twinkle" :style="{ '--delay': i * 0.2 + 's' }">✨</span>
-          </div>
-          <div v-if="animation === 'exercise'" class="effects exercise-effects">
-            <span v-for="i in 5" :key="i" class="sweat" :style="{ '--delay': i * 0.15 + 's', '--x': (i * 20 - 50) + 'px' }">💨</span>
-            <span class="heart-beat">💓</span>
-          </div>
-          <div v-if="animation === 'play'" class="effects play-effects">
-            <span class="ball bounce">🎾</span>
-            <span v-for="i in 6" :key="i" class="sparkle" :style="{ '--delay': i * 0.1 + 's', '--angle': i * 60 + 'deg' }">⭐</span>
-          </div>
-          <div v-if="animation === 'feed'" class="effects feed-effects">
-            <span class="food fall">🍖</span>
-            <span class="heart float-up">❤️</span>
-          </div>
-        </div>
-
-        <!-- 提示消息（非弹窗） -->
-        <div v-if="actionMessage" class="action-message" :class="{ show: actionMessage }">
-          {{ actionMessage }}
-        </div>
+        <!-- 底部消息 -->
+        <transition name="msg">
+          <div v-if="msg" class="msg-bar">{{ msg }}</div>
+        </transition>
       </div>
     </div>
 
     <!-- 领养弹窗 -->
     <div v-if="showAdopt" class="modal">
-      <div class="modal-content">
+      <div class="modal-box">
         <h2>领养宠物</h2>
-        <div class="form-group">
-          <label class="label">给宠物起个名字</label>
-          <input v-model="newPet.name" class="input" placeholder="如：小黑" />
+        <input v-model="newPet.name" class="inp" placeholder="给宠物起个名字" />
+        <div class="pick">
+          <button :class="{ on: newPet.type === 'cat' }" @click="newPet.type = 'cat'">🐱 猫咪</button>
+          <button :class="{ on: newPet.type === 'dog' }" @click="newPet.type = 'dog'">🐶 狗狗</button>
         </div>
-        <div class="form-group">
-          <label class="label">选择类型</label>
-          <div class="pet-select">
-            <button 
-              :class="{ active: newPet.type === 'cat' }"
-              @click="newPet.type = 'cat'"
-            >
-              🐱 猫咪
-            </button>
-            <button 
-              :class="{ active: newPet.type === 'dog' }"
-              @click="newPet.type = 'dog'"
-            >
-              🐶 狗狗
-            </button>
-          </div>
-        </div>
-        <div class="modal-actions">
-          <button class="btn" @click="adoptPet">确认领养</button>
-          <button class="btn cancel" @click="showAdopt = false">取消</button>
+        <div class="btns">
+          <button class="btn primary" @click="adoptPet">领养</button>
+          <button class="btn" @click="showAdopt = false">取消</button>
         </div>
       </div>
     </div>
 
-    <!-- 我的任务 -->
+    <!-- 任务列表 -->
     <div class="card">
       <h2>📋 我的任务</h2>
       <div v-if="tasks.length === 0" class="empty">暂无任务</div>
-      <div v-else class="task-list">
-        <div v-for="task in tasks" :key="task.id" class="task-item">
-          <div class="task-info">
-            <span class="task-title">{{ task.title }}</span>
-            <span class="task-reward">
-              🍖×{{ task.reward_food }} +{{ task.reward_exp }}exp
-            </span>
+      <div v-else class="tasks">
+        <div v-for="t in tasks" :key="t.id" class="task">
+          <div class="t-info">
+            <b>{{ t.title }}</b>
+            <span>🍖×{{ t.reward_food }} +{{ t.reward_exp }}exp</span>
           </div>
-          <div class="task-actions">
-            <button 
-              v-if="task.status === 'pending'" 
-              class="task-btn complete"
-              @click="completeTask(task.id)"
-            >
-              完成
-            </button>
-            <button 
-              v-if="task.status === 'completed'" 
-              class="task-btn claim"
-              @click="claimTask(task.id)"
-            >
-              领奖
-            </button>
-            <span v-if="task.status === 'claimed'" class="task-status done">✅ 已领取</span>
-          </div>
+          <button v-if="t.status === 'pending'" class="t-btn ok" @click="completeTask(t.id)">完成</button>
+          <button v-if="t.status === 'completed'" class="t-btn get" @click="claimTask(t.id)">领奖</button>
+          <span v-if="t.status === 'claimed'" class="done">✅</span>
         </div>
       </div>
     </div>
@@ -208,343 +131,130 @@ import axios from 'axios'
 
 const router = useRouter()
 const userStore = useUserStore()
-
 const pet = ref(null)
 const tasks = ref([])
 const foodCount = ref(0)
 const showAdopt = ref(false)
 const animation = ref(null)
-const actionMessage = ref(null)
-const newPet = ref({
-  name: '',
-  type: 'cat'
-})
+const msg = ref(null)
+const newPet = ref({ name: '', type: 'cat' })
 
-const authHeader = () => ({
-  headers: { Authorization: `Bearer ${userStore.token}` }
-})
+const auth = () => ({ headers: { Authorization: `Bearer ${userStore.token}` } })
 
 const loadPet = async () => {
-  try {
-    const res = await axios.get('/api/pet', authHeader())
-    pet.value = res.data.pet
-  } catch (err) {
-    console.error(err)
-  }
+  try { pet.value = (await axios.get('/api/pet', auth())).data.pet } catch {}
 }
-
 const loadTasks = async () => {
-  try {
-    const res = await axios.get('/api/tasks/my', authHeader())
-    tasks.value = res.data.tasks
-  } catch (err) {
-    console.error(err)
-  }
+  try { tasks.value = (await axios.get('/api/tasks/my', auth())).data.tasks } catch {}
 }
-
-const loadInventory = async () => {
+const loadInv = async () => {
   try {
-    const res = await axios.get('/api/inventory', authHeader())
-    const foodItem = res.data.items.find(i => i.item_type === 'food')
-    foodCount.value = foodItem ? foodItem.quantity : 0
-  } catch (err) {
-    console.error(err)
-  }
+    const res = (await axios.get('/api/inventory', auth())).data.items
+    const f = res.find(i => i.item_type === 'food')
+    foodCount.value = f ? f.quantity : 0
+  } catch {}
 }
 
 const adoptPet = async () => {
-  if (!newPet.value.name) {
-    alert('请给宠物起个名字')
-    return
-  }
-
+  if (!newPet.value.name) return alert('请给宠物起个名字')
   try {
-    const res = await axios.post('/api/pet/create', newPet.value, authHeader())
+    const res = await axios.post('/api/pet/create', newPet.value, auth())
     pet.value = res.data.pet
     showAdopt.value = false
     alert(res.data.message)
-  } catch (err) {
-    alert(err.response?.data?.error || '领养失败')
-  }
+  } catch (e) { alert(e.response?.data?.error || '领养失败') }
+}
+
+const showAnim = (type, message) => {
+  animation.value = type
+  msg.value = message
+  setTimeout(() => { animation.value = null; msg.value = null }, 2000)
 }
 
 const feedPet = async () => {
   try {
-    const res = await axios.post('/api/pet/feed', {}, authHeader())
+    const res = await axios.post('/api/pet/feed', {}, auth())
     pet.value = res.data.pet
-    loadInventory()
-    showAnimation('feed', res.data.message)
-  } catch (err) {
-    actionMessage.value = err.response?.data?.error || '喂食失败'
-    setTimeout(() => actionMessage.value = null, 2000)
-  }
+    loadInv()
+    showAnim('feed', res.data.message)
+  } catch (e) { showAnim(null, e.response?.data?.error || '喂食失败') }
+}
+
+const bathPet = async () => {
+  try {
+    const res = await axios.post('/api/pet/bath', {}, auth())
+    pet.value = res.data.pet
+    showAnim('bath', res.data.message)
+  } catch (e) { showAnim(null, e.response?.data?.error || '洗澡失败') }
+}
+
+const readPet = async () => {
+  try {
+    const res = await axios.post('/api/pet/read', {}, auth())
+    pet.value = res.data.pet
+    const m = res.data.levelUp ? `${res.data.message} 🎉升级到${res.data.levelUp}级！` : res.data.message
+    showAnim('read', m)
+  } catch (e) { showAnim(null, e.response?.data?.error || '读书失败') }
+}
+
+const exercisePet = async () => {
+  try {
+    const res = await axios.post('/api/pet/exercise', {}, auth())
+    pet.value = res.data.pet
+    const m = res.data.levelUp ? `${res.data.message} 🎉升级到${res.data.levelUp}级！` : res.data.message
+    showAnim('exercise', m)
+  } catch (e) { showAnim(null, e.response?.data?.error || '运动失败') }
+}
+
+const playPet = async () => {
+  try {
+    const res = await axios.post('/api/pet/play', {}, auth())
+    pet.value = res.data.pet
+    showAnim('play', res.data.message)
+  } catch (e) { showAnim(null, e.response?.data?.error || '玩耍失败') }
 }
 
 const revivePet = async () => {
   try {
-    const res = await axios.post('/api/pet/revive', {}, authHeader())
+    const res = await axios.post('/api/pet/revive', {}, auth())
     pet.value = res.data.pet
     alert(res.data.message)
-  } catch (err) {
-    alert(err.response?.data?.error || '复活失败')
-  }
-}
-
-// 显示动画效果 + 底部消息提示
-const showAnimation = (type, message) => {
-  animation.value = type
-  actionMessage.value = message
-  setTimeout(() => {
-    animation.value = null
-    actionMessage.value = null
-  }, 2000)
-}
-
-// 洗澡
-const bathPet = async () => {
-  try {
-    const res = await axios.post('/api/pet/bath', {}, authHeader())
-    pet.value = res.data.pet
-    showAnimation('bath', res.data.message)
-  } catch (err) {
-    actionMessage.value = err.response?.data?.error || '洗澡失败'
-    setTimeout(() => actionMessage.value = null, 2000)
-  }
-}
-
-// 读书
-const readPet = async () => {
-  try {
-    const res = await axios.post('/api/pet/read', {}, authHeader())
-    pet.value = res.data.pet
-    const msg = res.data.levelUp 
-      ? `${res.data.message}`
-      : res.data.message
-    showAnimation('read', msg)
-  } catch (err) {
-    actionMessage.value = err.response?.data?.error || '读书失败'
-    setTimeout(() => actionMessage.value = null, 2000)
-  }
-}
-
-// 运动
-const exercisePet = async () => {
-  try {
-    const res = await axios.post('/api/pet/exercise', {}, authHeader())
-    pet.value = res.data.pet
-    showAnimation('exercise', res.data.message)
-  } catch (err) {
-    actionMessage.value = err.response?.data?.error || '运动失败'
-    setTimeout(() => actionMessage.value = null, 2000)
-  }
-}
-
-// 玩耍
-const playPet = async () => {
-  try {
-    const res = await axios.post('/api/pet/play', {}, authHeader())
-    pet.value = res.data.pet
-    showAnimation('play', res.data.message)
-  } catch (err) {
-    actionMessage.value = err.response?.data?.error || '玩耍失败'
-    setTimeout(() => actionMessage.value = null, 2000)
-  }
+  } catch (e) { alert(e.response?.data?.error || '复活失败') }
 }
 
 const completeTask = async (id) => {
   try {
-    const res = await axios.post(`/api/tasks/${id}/complete`, {}, authHeader())
-    alert(res.data.message)
+    await axios.post(`/api/tasks/${id}/complete`, {}, auth())
     loadTasks()
-  } catch (err) {
-    alert(err.response?.data?.error || '操作失败')
-  }
+  } catch (e) { alert(e.response?.data?.error) }
 }
 
 const claimTask = async (id) => {
   try {
-    const res = await axios.post(`/api/tasks/${id}/claim`, {}, authHeader())
-    alert(res.data.message + (res.data.levelUp ? `\n🎉 升级到 ${res.data.levelUp} 级！` : ''))
-    loadTasks()
-    loadPet()
-    loadInventory()
-  } catch (err) {
-    alert(err.response?.data?.error || '领取失败')
-  }
+    const res = await axios.post(`/api/tasks/${id}/claim`, {}, auth())
+    if (res.data.levelUp) alert(`🎉 升级到 ${res.data.levelUp} 级！`)
+    loadTasks(); loadPet(); loadInv()
+  } catch (e) { alert(e.response?.data?.error) }
 }
 
-const logout = () => {
-  userStore.logout()
-  router.push('/')
-}
+const logout = () => { userStore.logout(); router.push('/') }
 
-onMounted(async () => {
-  await loadPet()
-  await loadTasks()
-  await loadInventory()
-})
+onMounted(async () => { await loadPet(); await loadTasks(); await loadInv() })
 </script>
 
 <style scoped>
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  color: white;
-}
+.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; color: white; }
+.header h1 { font-size: 20px; }
+.logout-btn { background: rgba(255,255,255,0.2); color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; }
 
-.header h1 {
-  font-size: 20px;
-}
+.pet-card { text-align: center; }
 
-.logout-btn {
-  background: rgba(255,255,255,0.2);
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 20px;
-  cursor: pointer;
-}
-
-.pet-card {
-  text-align: center;
-}
-
-.pet-sprite {
-  font-size: 80px;
-  animation: bounce 1s infinite;
-}
-
-.pet-sprite.dead {
-  filter: grayscale(1);
-  animation: none;
-}
-
-@keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-
-.pet-info h3 {
-  font-size: 24px;
-  margin: 8px 0 4px;
-}
-
-.level {
-  color: #666;
-  font-size: 14px;
-}
-
-.stats {
-  margin-top: 20px;
-  text-align: left;
-}
-
-.stat {
-  display: flex;
-  align-items: center;
-  margin-bottom: 12px;
-}
-
-.stat-label {
-  width: 60px;
-  font-size: 14px;
-}
-
-.stat-bar {
-  flex: 1;
-  height: 8px;
-  background: #e0e0e0;
-  border-radius: 4px;
-  margin: 0 8px;
-  overflow: hidden;
-}
-
-.stat-fill {
-  height: 100%;
-  border-radius: 4px;
-  transition: width 0.3s;
-}
-
-.stat-fill.hp { background: linear-gradient(90deg, #ff6b6b, #ee5a5a); }
-.stat-fill.hunger { background: linear-gradient(90deg, #ffd93d, #ffb800); }
-.stat-fill.mood { background: linear-gradient(90deg, #6bcb77, #4caf50); }
-
-.stat-value {
-  width: 30px;
-  text-align: right;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.actions {
-  margin-top: 20px;
-  display: flex;
-  gap: 12px;
-}
-
-.action-btn {
-  flex: 1;
-  padding: 12px;
-  border: none;
-  border-radius: 24px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-
-.action-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.action-btn.feed {
-  background: linear-gradient(135deg, #ffd93d, #ffb800);
-  color: #333;
-}
-
-.action-btn.revive {
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: white;
-}
-
-/* 互动按钮样式 */
-.interactions {
-  margin-top: 20px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.action-btn.bath {
-  background: linear-gradient(135deg, #74b9ff, #0984e3);
-  color: white;
-}
-
-.action-btn.read {
-  background: linear-gradient(135deg, #a29bfe, #6c5ce7);
-  color: white;
-}
-
-.action-btn.exercise {
-  background: linear-gradient(135deg, #fd79a8, #e84393);
-  color: white;
-}
-
-.action-btn.play {
-  background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
-  color: #333;
-}
-
-/* 动画效果 */
-.pet-3d-container {
+/* 3D 宠物容器 */
+.pet-3d-wrapper {
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 20px 0;
-  perspective: 1000px;
+  display: inline-block;
+  perspective: 800px;
+  margin: 16px 0;
 }
 
 .pet-3d {
@@ -552,59 +262,76 @@ onMounted(async () => {
   transition: transform 0.3s;
 }
 
-.pet-sprite-3d {
-  font-size: 80px;
+.pet-sprite {
+  font-size: 100px;
   animation: idle 2s ease-in-out infinite;
+  display: block;
+}
+.pet-sprite.dead { filter: grayscale(1); animation: none; }
+
+@keyframes idle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
 }
 
-.pet-sprite-3d.dead {
-  filter: grayscale(1);
-  animation: none;
+/* 洗澡动画 */
+.pet-3d-wrapper.bath .pet-3d { animation: wiggle 1.5s ease-in-out; }
+@keyframes wiggle {
+  0%, 100% { transform: rotateY(0deg); }
+  25% { transform: rotateY(-20deg); }
+  75% { transform: rotateY(20deg); }
 }
 
-/* 3D 动画 - 洗澡 */
-.pet-3d-container.bath .pet-3d {
-  animation: bath3d 2s ease-in-out;
+.bath-fx .drop {
+  position: absolute;
+  font-size: 20px;
+  animation: splash 1s ease-out forwards;
+  animation-delay: var(--d);
+  top: 30%;
+  left: 50%;
+}
+@keyframes splash {
+  0% { transform: translate(0,0) scale(0); opacity: 1; }
+  50% { transform: translate(var(--x), -60px) scale(1.2); opacity: 1; }
+  100% { transform: translate(var(--x), -100px) scale(0.5); opacity: 0; }
+}
+.bath-fx .bubble { position: absolute; font-size: 32px; animation: bub 1.5s ease-out; top: 10%; left: 60%; }
+.bath-fx .b2 { left: 30%; animation-delay: 0.3s; }
+@keyframes bub { 0% { transform: scale(0); opacity: 0; } 50% { transform: scale(1.3); opacity: 1; } 100% { transform: scale(0.5); opacity: 0; } }
+
+/* 读书动画 */
+.pet-3d-wrapper.read .pet-3d { animation: nod 2s ease-in-out; }
+@keyframes nod {
+  0%, 100% { transform: rotateX(0deg); }
+  30% { transform: rotateX(-15deg); }
+  60% { transform: rotateX(10deg); }
 }
 
-@keyframes bath3d {
-  0%, 100% { transform: rotateY(0deg) scale(1); }
-  25% { transform: rotateY(-20deg) scale(1.1); }
-  50% { transform: rotateY(20deg) scale(1.1); }
-  75% { transform: rotateY(-15deg) scale(1.05); }
+.read-fx .book { position: absolute; font-size: 40px; animation: floatIn 1.5s ease-out; top: 10%; left: 20%; }
+@keyframes floatIn { 0% { transform: translateY(30px) rotate(-20deg); opacity: 0; } 40% { transform: translateY(0) rotate(0); opacity: 1; } 100% { opacity: 0; } }
+.read-fx .idea { position: absolute; font-size: 32px; animation: pop 1s ease-out 0.5s forwards; top: 5%; right: 25%; opacity: 0; }
+@keyframes pop { 0% { transform: scale(0); opacity: 0; } 50% { transform: scale(1.5); opacity: 1; } 100% { transform: scale(1); opacity: 0; } }
+.read-fx .spark { position: absolute; font-size: 20px; animation: twinkle 1s ease-out forwards; animation-delay: var(--d); top: 15%; left: 50%; }
+@keyframes twinkle { 0% { transform: scale(0); opacity: 0; } 50% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(0); opacity: 0; } }
+
+/* 运动动画 */
+.pet-3d-wrapper.exercise .pet-3d { animation: jump 1.5s ease-in-out; }
+@keyframes jump {
+  0%, 100% { transform: translateX(0) translateY(0); }
+  20% { transform: translateX(-30px) translateY(-20px); }
+  40% { transform: translateX(30px) translateY(-15px); }
+  60% { transform: translateX(-20px) translateY(-25px); }
+  80% { transform: translateX(20px) translateY(-10px); }
 }
 
-/* 3D 动画 - 读书 */
-.pet-3d-container.read .pet-3d {
-  animation: read3d 2s ease-in-out;
-}
+.run-fx .puff { position: absolute; font-size: 18px; animation: puff 1s ease-out forwards; animation-delay: var(--d); top: 40%; left: 40%; }
+@keyframes puff { 0% { transform: scale(0) translateX(0); opacity: 0; } 30% { transform: scale(1) translateX(-20px); opacity: 0.8; } 100% { transform: scale(0.5) translateX(-50px); opacity: 0; } }
+.run-fx .pulse { position: absolute; font-size: 28px; animation: beat 1s ease-out 0.5s; top: 20%; right: 30%; }
+@keyframes beat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.4); } }
 
-@keyframes read3d {
-  0%, 100% { transform: rotateX(0deg) translateY(0); }
-  25% { transform: rotateX(-10deg) translateY(-5px); }
-  50% { transform: rotateX(10deg) translateY(-3px); }
-  75% { transform: rotateX(-5deg) translateY(-2px); }
-}
-
-/* 3D 动画 - 运动 */
-.pet-3d-container.exercise .pet-3d {
-  animation: exercise3d 1.5s ease-in-out;
-}
-
-@keyframes exercise3d {
-  0%, 100% { transform: translateX(0) scale(1); }
-  20% { transform: translateX(-30px) scale(1.1); }
-  40% { transform: translateX(30px) scale(1); }
-  60% { transform: translateX(-20px) scale(1.1); }
-  80% { transform: translateX(20px) scale(1); }
-}
-
-/* 3D 动画 - 玩耍 */
-.pet-3d-container.play .pet-3d {
-  animation: play3d 2s ease-in-out;
-}
-
-@keyframes play3d {
+/* 玩耍动画 */
+.pet-3d-wrapper.play .pet-3d { animation: roll 2s ease-in-out; }
+@keyframes roll {
   0% { transform: rotate(0deg) scale(1); }
   25% { transform: rotate(90deg) scale(1.2); }
   50% { transform: rotate(180deg) scale(1); }
@@ -612,378 +339,104 @@ onMounted(async () => {
   100% { transform: rotate(360deg) scale(1); }
 }
 
-/* 3D 动画 - 喂食 */
-.pet-3d-container.feed .pet-3d {
-  animation: feed3d 1.5s ease-in-out;
-}
-
-@keyframes feed3d {
-  0%, 100% { transform: scale(1); }
-  30% { transform: scale(1.3); }
-  50% { transform: scale(1.1) translateY(-10px); }
-  70% { transform: scale(1.2); }
-}
-
-/* 基础动画 */
-@keyframes idle {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
-}
-
-/* 特效容器 */
-.effects {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  pointer-events: none;
-}
-
-/* 洗澡特效 - 水滴 */
-.bath-effects .droplet {
-  position: absolute;
-  font-size: 24px;
-  animation: splash 1s ease-out forwards;
-  animation-delay: var(--delay);
-  left: 50%;
-  top: 30%;
-}
-
-@keyframes splash {
-  0% { transform: translate(0, 0) scale(0); opacity: 1; }
-  50% { transform: translate(var(--x), -60px) scale(1.2); opacity: 1; }
-  100% { transform: translate(var(--x), -100px) scale(0.5); opacity: 0; }
-}
-
-.bath-effects .bubbles {
-  position: absolute;
-  font-size: 40px;
-  animation: bubbleFloat 2s ease-out;
-  top: 20%;
-  left: 60%;
-}
-
-@keyframes bubbleFloat {
-  0% { transform: translateY(0) scale(0); opacity: 0; }
-  20% { transform: translateY(-20px) scale(1); opacity: 1; }
-  100% { transform: translateY(-80px) scale(1.5); opacity: 0; }
-}
-
-/* 读书特效 */
-.read-effects .book {
-  position: absolute;
-  font-size: 36px;
-  animation: bookFloat 2s ease-out;
-  top: 10%;
-  left: 20%;
-}
-
-.read-effects .lightbulb {
-  position: absolute;
-  font-size: 32px;
-  animation: lightUp 1.5s ease-out 0.5s forwards;
-  top: 5%;
-  right: 25%;
-  opacity: 0;
-}
-
-@keyframes bookFloat {
-  0% { transform: translateY(50px) rotate(-20deg); opacity: 0; }
-  30% { transform: translateY(0) rotate(0deg); opacity: 1; }
-  100% { transform: translateY(-30px); opacity: 0; }
-}
-
-@keyframes lightUp {
-  0% { transform: scale(0) rotate(-30deg); opacity: 0; }
-  50% { transform: scale(1.5) rotate(10deg); opacity: 1; }
-  100% { transform: scale(1.2) rotate(0deg); opacity: 0; }
-}
-
-.read-effects .star {
-  position: absolute;
-  font-size: 20px;
-  animation: twinkle 1s ease-out forwards;
-  animation-delay: var(--delay);
-  top: 10%;
-  left: 50%;
-}
-
-@keyframes twinkle {
-  0% { transform: scale(0); opacity: 0; }
-  50% { transform: scale(1.3); opacity: 1; }
-  100% { transform: scale(0); opacity: 0; }
-}
-
-/* 运动特效 */
-.exercise-effects .sweat {
-  position: absolute;
-  font-size: 20px;
-  animation: sweatDrop 1s ease-out forwards;
-  animation-delay: var(--delay);
-  left: calc(50% + var(--x));
-  top: 20%;
-}
-
-@keyframes sweatDrop {
-  0% { transform: translateY(0); opacity: 0; }
-  30% { transform: translateY(10px); opacity: 1; }
-  100% { transform: translateY(50px); opacity: 0; }
-}
-
-.exercise-effects .heart-beat {
-  position: absolute;
-  font-size: 28px;
-  animation: heartbeat 1s ease-out 1s;
-  top: 15%;
-  right: 30%;
-}
-
-@keyframes heartbeat {
-  0%, 100% { transform: scale(1); }
-  25% { transform: scale(1.3); }
-  50% { transform: scale(1); }
-  75% { transform: scale(1.2); }
-}
-
-/* 玩耍特效 */
-.play-effects .ball {
-  position: absolute;
-  font-size: 40px;
-  animation: ballBounce 1.5s ease-out;
-  top: 30%;
-  left: 20%;
-}
-
-@keyframes ballBounce {
+.play-fx .ball { position: absolute; font-size: 36px; animation: bounce 1.5s ease-out; top: 30%; left: 20%; }
+@keyframes bounce {
   0% { transform: translateX(0) translateY(0); }
-  25% { transform: translateX(100px) translateY(-50px); }
-  50% { transform: translateX(150px) translateY(0); }
-  75% { transform: translateX(100px) translateY(-30px); }
-  100% { transform: translateX(50px) translateY(0); opacity: 0; }
+  25% { transform: translateX(80px) translateY(-60px); }
+  50% { transform: translateX(120px) translateY(0); }
+  75% { transform: translateX(80px) translateY(-30px); }
+  100% { transform: translateX(40px) translateY(0); opacity: 0; }
+}
+.play-fx .star { position: absolute; font-size: 24px; animation: burst 1.5s ease-out forwards; animation-delay: var(--d); top: 50%; left: 50%; }
+@keyframes burst {
+  0% { transform: translate(0,0) scale(0); opacity: 0; }
+  30% { transform: translate(calc(cos(var(--a)) * 60px), calc(sin(var(--a)) * 60px)) scale(1.2); opacity: 1; }
+  100% { transform: translate(calc(cos(var(--a)) * 100px), calc(sin(var(--a)) * 100px)) scale(0.5); opacity: 0; }
 }
 
-.play-effects .sparkle {
-  position: absolute;
-  font-size: 24px;
-  animation: sparkleOut 1.5s ease-out forwards;
-  animation-delay: var(--delay);
-  top: 50%;
-  left: 50%;
-  --dist: 80px;
+/* 喂食动画 */
+.pet-3d-wrapper.feed .pet-3d { animation: eat 1.5s ease-in-out; }
+@keyframes eat {
+  0%, 100% { transform: scale(1); }
+  30% { transform: scale(1.2); }
+  50% { transform: scale(1.1) translateY(-5px); }
+  70% { transform: scale(1.15); }
 }
 
-@keyframes sparkleOut {
-  0% { 
-    transform: translate(0, 0) scale(0); 
-    opacity: 0; 
-  }
-  30% { 
-    transform: translate(
-      calc(cos(var(--angle)) * var(--dist)), 
-      calc(sin(var(--angle)) * var(--dist))
-    ) scale(1.2); 
-    opacity: 1; 
-  }
-  100% { 
-    transform: translate(
-      calc(cos(var(--angle)) * var(--dist) * 1.5), 
-      calc(sin(var(--angle)) * var(--dist) * 1.5)
-    ) scale(0.5); 
-    opacity: 0; 
-  }
-}
+.feed-fx .meat { position: absolute; font-size: 40px; animation: fallDown 1.5s ease-out; top: -20%; left: 45%; }
+@keyframes fallDown { 0% { transform: translateY(-50px); opacity: 0; } 40% { transform: translateY(20px); opacity: 1; } 60% { transform: translateY(0); } 100% { transform: translateY(10px) scale(1.5); opacity: 0; } }
+.feed-fx .love { position: absolute; font-size: 28px; animation: floatUp 1.5s ease-out 0.3s; top: 35%; left: 55%; }
+@keyframes floatUp { 0% { transform: translateY(0) scale(0); opacity: 0; } 30% { transform: translateY(-20px) scale(1.2); opacity: 1; } 100% { transform: translateY(-60px) scale(0.8); opacity: 0; } }
 
-/* 喂食特效 */
-.feed-effects .food {
-  position: absolute;
-  font-size: 40px;
-  animation: foodFall 1.5s ease-out;
-  top: -20%;
-  left: 50%;
-}
+/* 特效通用 */
+.fx { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; }
 
-@keyframes foodFall {
-  0% { transform: translateY(-50px) rotate(-20deg); opacity: 0; }
-  40% { transform: translateY(20px) rotate(10deg); opacity: 1; }
-  60% { transform: translateY(0) rotate(0deg); opacity: 1; }
-  100% { transform: translateY(10px) scale(1.5); opacity: 0; }
-}
+.pet-info h3 { font-size: 24px; margin: 8px 0 4px; }
+.level { color: #666; font-size: 14px; }
 
-.feed-effects .heart {
-  position: absolute;
-  font-size: 30px;
-  animation: heartFloat 1.5s ease-out 0.3s;
-  top: 30%;
-  left: 55%;
-}
+.stats { margin-top: 16px; text-align: left; }
+.stat { display: flex; align-items: center; margin-bottom: 10px; }
+.stat .label { width: 24px; }
+.stat .bar { flex: 1; height: 8px; background: #e0e0e0; border-radius: 4px; margin: 0 8px; overflow: hidden; }
+.stat .fill { height: 100%; border-radius: 4px; transition: width 0.3s; }
+.stat .fill.hp { background: linear-gradient(90deg, #ff6b6b, #ee5a5a); }
+.stat .fill.hunger { background: linear-gradient(90deg, #ffd93d, #ffb800); }
+.stat .fill.mood { background: linear-gradient(90deg, #6bcb77, #4caf50); }
+.stat .val { width: 30px; text-align: right; font-size: 14px; }
 
-@keyframes heartFloat {
-  0% { transform: translateY(0) scale(0); opacity: 0; }
-  30% { transform: translateY(-20px) scale(1.2); opacity: 1; }
-  100% { transform: translateY(-60px) scale(0.8); opacity: 0; }
-}
+.actions { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.act-btn { padding: 10px 16px; border: none; border-radius: 20px; font-size: 14px; cursor: pointer; transition: transform 0.2s; }
+.act-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.act-btn.feed { background: linear-gradient(135deg, #ffd93d, #ffb800); color: #333; }
+.act-btn.bath { background: linear-gradient(135deg, #74b9ff, #0984e3); color: white; }
+.act-btn.read { background: linear-gradient(135deg, #a29bfe, #6c5ce7); color: white; }
+.act-btn.run { background: linear-gradient(135deg, #fd79a8, #e84393); color: white; }
+.act-btn.play { background: linear-gradient(135deg, #ffeaa7, #fdcb6e); color: #333; }
+.act-btn.revive { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+.act-btn:not(:disabled):active { transform: scale(0.95); }
 
-/* 底部消息提示 */
-.action-message {
+/* 底部消息 */
+.msg-bar {
   position: fixed;
   bottom: 80px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0,0,0,0.85);
   color: white;
-  padding: 12px 24px;
-  border-radius: 24px;
-  font-size: 14px;
-  max-width: 80%;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 13px;
+  max-width: 85%;
   text-align: center;
-  opacity: 0;
-  transition: opacity 0.3s;
-  z-index: 1001;
-}
-
-.action-message.show {
-  opacity: 1;
-}
-
-.no-pet {
-  padding: 40px 0;
-}
-
-.no-pet p {
-  color: #999;
-  margin-bottom: 16px;
-}
-
-/* Modal */
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0,0,0,0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   z-index: 100;
 }
+.msg-enter-active, .msg-leave-active { transition: opacity 0.3s; }
+.msg-enter-from, .msg-leave-to { opacity: 0; }
 
-.modal-content {
-  background: white;
-  padding: 24px;
-  border-radius: 16px;
-  width: 90%;
-  max-width: 320px;
-}
+.no-pet { padding: 40px 0; }
+.no-pet p { color: #999; margin-bottom: 16px; }
 
-.modal-content h2 {
-  text-align: center;
-  margin-bottom: 20px;
-}
+/* 弹窗 */
+.modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 100; }
+.modal-box { background: white; padding: 24px; border-radius: 16px; width: 90%; max-width: 300px; }
+.modal-box h2 { text-align: center; margin-bottom: 16px; }
+.inp { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 16px; box-sizing: border-box; }
+.pick { display: flex; gap: 10px; margin-bottom: 16px; }
+.pick button { flex: 1; padding: 12px; border: 2px solid #ddd; border-radius: 8px; background: white; cursor: pointer; }
+.pick button.on { border-color: #667eea; background: #f0f3ff; }
+.btns { display: flex; gap: 10px; }
+.btn { flex: 1; padding: 10px; border: none; border-radius: 8px; cursor: pointer; }
+.btn.primary { background: #667eea; color: white; }
 
-.pet-select {
-  display: flex;
-  gap: 12px;
-}
-
-.pet-select button {
-  flex: 1;
-  padding: 16px;
-  border: 2px solid #e0e0e0;
-  border-radius: 12px;
-  background: white;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-.pet-select button.active {
-  border-color: #667eea;
-  background: #f0f3ff;
-}
-
-.modal-actions {
-  margin-top: 20px;
-  display: flex;
-  gap: 12px;
-}
-
-.modal-actions .btn {
-  flex: 1;
-}
-
-.modal-actions .btn.cancel {
-  background: #e0e0e0;
-  color: #666;
-}
-
-/* Tasks */
-.card h2 {
-  font-size: 16px;
-  margin-bottom: 16px;
-}
-
-.task-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.task-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px;
-  background: #f5f5f5;
-  border-radius: 12px;
-}
-
-.task-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.task-title {
-  font-weight: 500;
-}
-
-.task-reward {
-  font-size: 12px;
-  color: #666;
-  margin-top: 4px;
-}
-
-.task-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.task-btn {
-  padding: 6px 16px;
-  border: none;
-  border-radius: 16px;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.task-btn.complete {
-  background: #e3f2fd;
-  color: #1976d2;
-}
-
-.task-btn.claim {
-  background: #ffd93d;
-  color: #333;
-}
-
-.task-status.done {
-  color: #4caf50;
-  font-size: 14px;
-}
-
-.empty {
-  text-align: center;
-  color: #999;
-  padding: 20px;
-}
+/* 任务 */
+.card h2 { font-size: 16px; margin-bottom: 12px; }
+.tasks { display: flex; flex-direction: column; gap: 10px; }
+.task { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f5f5f5; border-radius: 10px; }
+.t-info { display: flex; flex-direction: column; }
+.t-info span { font-size: 12px; color: #666; margin-top: 4px; }
+.t-btn { padding: 6px 14px; border: none; border-radius: 14px; font-size: 13px; cursor: pointer; }
+.t-btn.ok { background: #e3f2fd; color: #1976d2; }
+.t-btn.get { background: #ffd93d; color: #333; }
+.done { color: #4caf50; }
+.empty { text-align: center; color: #999; padding: 20px; }
 </style>
