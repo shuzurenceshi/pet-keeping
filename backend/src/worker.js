@@ -372,6 +372,220 @@ app.post('/api/pet/revive', async (c) => {
   }
 })
 
+// ========== 宠物互动 ==========
+
+// 洗澡 - 增加心情和生命
+app.post('/api/pet/bath', async (c) => {
+  const auth = c.req.header('Authorization')
+  if (!auth?.startsWith('Bearer ')) {
+    return c.json({ error: '未登录' }, 401)
+  }
+
+  try {
+    const decoded = jwtLib.verify(auth.slice(7), JWT_SECRET)
+    
+    const pet = await c.env.DB.prepare(
+      'SELECT * FROM pets WHERE user_id = ?'
+    ).bind(decoded.userId).first()
+
+    if (!pet) {
+      return c.json({ error: '你还没有宠物' }, 404)
+    }
+
+    if (!pet.is_alive) {
+      return c.json({ error: '宠物已死亡，请先复活' }, 400)
+    }
+
+    // 洗澡效果：心情+15，生命+5
+    const newMood = Math.min(100, pet.mood + 15)
+    const newHp = Math.min(100, pet.hp + 5)
+
+    await c.env.DB.prepare(
+      'UPDATE pets SET mood = ?, hp = ? WHERE user_id = ?'
+    ).bind(newMood, newHp, decoded.userId).run()
+
+    const updatedPet = await c.env.DB.prepare(
+      'SELECT * FROM pets WHERE user_id = ?'
+    ).bind(decoded.userId).first()
+
+    return c.json({
+      success: true,
+      pet: updatedPet,
+      animation: 'bath',
+      message: `${pet.name} 洗了个香香的澡 🛁✨ 心情变好了！`
+    })
+  } catch (err) {
+    return c.json({ error: '洗澡失败' }, 500)
+  }
+})
+
+// 读书 - 增加经验和心情
+app.post('/api/pet/read', async (c) => {
+  const auth = c.req.header('Authorization')
+  if (!auth?.startsWith('Bearer ')) {
+    return c.json({ error: '未登录' }, 401)
+  }
+
+  try {
+    const decoded = jwtLib.verify(auth.slice(7), JWT_SECRET)
+    
+    const pet = await c.env.DB.prepare(
+      'SELECT * FROM pets WHERE user_id = ?'
+    ).bind(decoded.userId).first()
+
+    if (!pet) {
+      return c.json({ error: '你还没有宠物' }, 404)
+    }
+
+    if (!pet.is_alive) {
+      return c.json({ error: '宠物已死亡，请先复活' }, 400)
+    }
+
+    // 读书效果：经验+10，心情+10
+    let newExp = pet.exp + 10
+    let newLevel = pet.level
+    let levelUp = false
+
+    while (newExp >= newLevel * 50) {
+      newExp -= newLevel * 50
+      newLevel++
+      levelUp = true
+    }
+
+    const newMood = Math.min(100, pet.mood + 10)
+
+    await c.env.DB.prepare(
+      'UPDATE pets SET exp = ?, level = ?, mood = ? WHERE user_id = ?'
+    ).bind(newExp, newLevel, newMood, decoded.userId).run()
+
+    const updatedPet = await c.env.DB.prepare(
+      'SELECT * FROM pets WHERE user_id = ?'
+    ).bind(decoded.userId).first()
+
+    return c.json({
+      success: true,
+      pet: updatedPet,
+      animation: 'read',
+      levelUp: levelUp ? newLevel : null,
+      message: levelUp 
+        ? `${pet.name} 认真读书 📚💡 升级到 ${newLevel} 级了！`
+        : `${pet.name} 认真读书 📚💡 变聪明了！`
+    })
+  } catch (err) {
+    return c.json({ error: '读书失败' }, 500)
+  }
+})
+
+// 运动 - 增加生命和经验，减少饱食度
+app.post('/api/pet/exercise', async (c) => {
+  const auth = c.req.header('Authorization')
+  if (!auth?.startsWith('Bearer ')) {
+    return c.json({ error: '未登录' }, 401)
+  }
+
+  try {
+    const decoded = jwtLib.verify(auth.slice(7), JWT_SECRET)
+    
+    const pet = await c.env.DB.prepare(
+      'SELECT * FROM pets WHERE user_id = ?'
+    ).bind(decoded.userId).first()
+
+    if (!pet) {
+      return c.json({ error: '你还没有宠物' }, 404)
+    }
+
+    if (!pet.is_alive) {
+      return c.json({ error: '宠物已死亡，请先复活' }, 400)
+    }
+
+    if (pet.hunger < 20) {
+      return c.json({ error: `${pet.name} 太饿了，没力气运动，先喂点东西吧！` }, 400)
+    }
+
+    // 运动效果：生命+10，经验+8，饱食度-20
+    const newHp = Math.min(100, pet.hp + 10)
+    const newHunger = Math.max(0, pet.hunger - 20)
+    let newExp = pet.exp + 8
+    let newLevel = pet.level
+    let levelUp = false
+
+    while (newExp >= newLevel * 50) {
+      newExp -= newLevel * 50
+      newLevel++
+      levelUp = true
+    }
+
+    await c.env.DB.prepare(
+      'UPDATE pets SET hp = ?, hunger = ?, exp = ?, level = ? WHERE user_id = ?'
+    ).bind(newHp, newHunger, newExp, newLevel, decoded.userId).run()
+
+    const updatedPet = await c.env.DB.prepare(
+      'SELECT * FROM pets WHERE user_id = ?'
+    ).bind(decoded.userId).first()
+
+    return c.json({
+      success: true,
+      pet: updatedPet,
+      animation: 'exercise',
+      levelUp: levelUp ? newLevel : null,
+      message: levelUp
+        ? `${pet.name} 开心运动 🏃‍♂️💨 升级到 ${newLevel} 级了！`
+        : `${pet.name} 开心运动 🏃‍♂️💨 身体更健康了！`
+    })
+  } catch (err) {
+    return c.json({ error: '运动失败' }, 500)
+  }
+})
+
+// 玩耍 - 增加心情，减少饱食度
+app.post('/api/pet/play', async (c) => {
+  const auth = c.req.header('Authorization')
+  if (!auth?.startsWith('Bearer ')) {
+    return c.json({ error: '未登录' }, 401)
+  }
+
+  try {
+    const decoded = jwtLib.verify(auth.slice(7), JWT_SECRET)
+    
+    const pet = await c.env.DB.prepare(
+      'SELECT * FROM pets WHERE user_id = ?'
+    ).bind(decoded.userId).first()
+
+    if (!pet) {
+      return c.json({ error: '你还没有宠物' }, 404)
+    }
+
+    if (!pet.is_alive) {
+      return c.json({ error: '宠物已死亡，请先复活' }, 400)
+    }
+
+    if (pet.hunger < 10) {
+      return c.json({ error: `${pet.name} 太饿了，先喂点东西吧！` }, 400)
+    }
+
+    // 玩耍效果：心情+20，饱食度-10
+    const newMood = Math.min(100, pet.mood + 20)
+    const newHunger = Math.max(0, pet.hunger - 10)
+
+    await c.env.DB.prepare(
+      'UPDATE pets SET mood = ?, hunger = ? WHERE user_id = ?'
+    ).bind(newMood, newHunger, decoded.userId).run()
+
+    const updatedPet = await c.env.DB.prepare(
+      'SELECT * FROM pets WHERE user_id = ?'
+    ).bind(decoded.userId).first()
+
+    return c.json({
+      success: true,
+      pet: updatedPet,
+      animation: 'play',
+      message: `${pet.name} 玩得超级开心 🎾🎉`
+    })
+  } catch (err) {
+    return c.json({ error: '玩耍失败' }, 500)
+  }
+})
+
 // ========== 任务 ==========
 
 const TASK_CONFIG = {
