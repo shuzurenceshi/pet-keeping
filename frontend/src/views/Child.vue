@@ -45,13 +45,37 @@
           </div>
         </div>
 
-        <div class="actions">
+        <!-- 互动按钮 -->
+        <div class="interactions">
           <button class="action-btn feed" @click="feedPet" :disabled="!pet.is_alive || foodCount <= 0">
             🍖 喂食 ({{ foodCount }})
+          </button>
+          <button class="action-btn bath" @click="bathPet" :disabled="!pet.is_alive">
+            🛁 洗澡
+          </button>
+          <button class="action-btn read" @click="readPet" :disabled="!pet.is_alive">
+            📚 读书
+          </button>
+          <button class="action-btn exercise" @click="exercisePet" :disabled="!pet.is_alive">
+            🏃 运动
+          </button>
+          <button class="action-btn play" @click="playPet" :disabled="!pet.is_alive">
+            🎾 玩耍
           </button>
           <button v-if="!pet.is_alive" class="action-btn revive" @click="revivePet">
             ✨ 复活
           </button>
+        </div>
+
+        <!-- 动画效果 -->
+        <div v-if="animation" class="animation-overlay" :class="animation">
+          <div class="animation-content">
+            <span v-if="animation === 'feed'">🍖</span>
+            <span v-else-if="animation === 'bath'">🛁✨</span>
+            <span v-else-if="animation === 'read'">📚💡</span>
+            <span v-else-if="animation === 'exercise'">🏃💨</span>
+            <span v-else-if="animation === 'play'">🎾🎉</span>
+          </div>
         </div>
       </div>
     </div>
