@@ -290,3 +290,4 @@ cd frontend && npm install && npm run dev
 4. **家长登录**
    - 发布任务给孩子
    - 查看孩子完成情况
+测试自动push - Tue Mar 31 10:50:20 PM CST 2026
