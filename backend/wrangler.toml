@@ -1,13 +1,8 @@
 name = "pet-keeping-api"
 main = "src/worker.js"
-compatibility_date = "2024-09-23"
-compatibility_flags = ["nodejs_compat"]
-account_id = "c1119e73537ab028455972057fa06376"
-
-[vars]
-JWT_SECRET = "pet-keeping-secret-2024"
+compatibility_date = "2024-03-30"
 
 [[d1_databases]]
 binding = "DB"
-database_name = "pet-keeping"
-database_id = "a0cd4dd3-1ffa-4196-8700-fd9793cc5c30"
+database_name = "pet-keeping-db"
+database_id = ""  # 创建后填入
