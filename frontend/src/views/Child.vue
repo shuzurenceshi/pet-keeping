@@ -13,9 +13,37 @@
       </div>
       
       <div v-else class="pet-container">
-        <div class="pet-sprite" :class="{ dead: !pet.is_alive }">
-          {{ pet.type === 'cat' ? '🐱' : '🐶' }}
+        <!-- 3D 宠物容器 -->
+        <div class="pet-3d-container" :class="animation">
+          <div class="pet-3d">
+            <div class="pet-sprite-3d" :class="{ dead: !pet.is_alive }">
+              {{ pet.type === 'cat' ? '🐱' : '🐶' }}
+            </div>
+          </div>
+          <!-- 特效 -->
+          <div v-if="animation === 'bath'" class="effects bath-effects">
+            <span v-for="i in 8" :key="'d'+i" class="droplet" :style="{ '--delay': i * 0.1 + 's', '--x': (Math.random() * 100 - 50) + 'px' }">💧</span>
+            <span class="bubbles">🫧</span>
+          </div>
+          <div v-if="animation === 'read'" class="effects read-effects">
+            <span class="book">📖</span>
+            <span class="lightbulb">💡</span>
+            <span v-for="i in 3" :key="'s'+i" class="star" :style="{ '--delay': i * 0.2 + 's' }">✨</span>
+          </div>
+          <div v-if="animation === 'exercise'" class="effects exercise-effects">
+            <span v-for="i in 5" :key="'sw'+i" class="sweat" :style="{ '--delay': i * 0.15 + 's', '--x': (i * 20 - 50) + 'px' }">💨</span>
+            <span class="heart-beat">💓</span>
+          </div>
+          <div v-if="animation === 'play'" class="effects play-effects">
+            <span class="ball">🎾</span>
+            <span v-for="i in 6" :key="'sp'+i" class="sparkle" :style="{ '--delay': i * 0.1 + 's', '--angle': i * 60 + 'deg' }">⭐</span>
+          </div>
+          <div v-if="animation === 'feed'" class="effects feed-effects">
+            <span class="food">🍖</span>
+            <span class="heart">❤️</span>
+          </div>
         </div>
+        
         <div class="pet-info">
           <h3>{{ pet.name }}</h3>
           <p class="level">Lv.{{ pet.level }} ({{ pet.exp }}/{{ pet.level * 50 }} exp)</p>
