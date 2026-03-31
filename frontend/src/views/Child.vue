@@ -235,6 +235,68 @@ const revivePet = async () => {
   }
 }
 
+// 显示动画效果
+const showAnimation = (type) => {
+  animation.value = type
+  setTimeout(() => {
+    animation.value = null
+  }, 1500)
+}
+
+// 洗澡
+const bathPet = async () => {
+  try {
+    const res = await axios.post('/api/pet/bath', {}, authHeader())
+    pet.value = res.data.pet
+    showAnimation('bath')
+    setTimeout(() => alert(res.data.message), 500)
+  } catch (err) {
+    alert(err.response?.data?.error || '洗澡失败')
+  }
+}
+
+// 读书
+const readPet = async () => {
+  try {
+    const res = await axios.post('/api/pet/read', {}, authHeader())
+    pet.value = res.data.pet
+    showAnimation('read')
+    const msg = res.data.levelUp 
+      ? `${res.data.message}\n🎉 升级到 ${res.data.levelUp} 级！`
+      : res.data.message
+    setTimeout(() => alert(msg), 500)
+  } catch (err) {
+    alert(err.response?.data?.error || '读书失败')
+  }
+}
+
+// 运动
+const exercisePet = async () => {
+  try {
+    const res = await axios.post('/api/pet/exercise', {}, authHeader())
+    pet.value = res.data.pet
+    showAnimation('exercise')
+    const msg = res.data.levelUp
+      ? `${res.data.message}\n🎉 升级到 ${res.data.levelUp} 级！`
+      : res.data.message
+    setTimeout(() => alert(msg), 500)
+  } catch (err) {
+    alert(err.response?.data?.error || '运动失败')
+  }
+}
+
+// 玩耍
+const playPet = async () => {
+  try {
+    const res = await axios.post('/api/pet/play', {}, authHeader())
+    pet.value = res.data.pet
+    showAnimation('play')
+    setTimeout(() => alert(res.data.message), 500)
+  } catch (err) {
+    alert(err.response?.data?.error || '玩耍失败')
+  }
+}
+
 const completeTask = async (id) => {
   try {
     const res = await axios.post(`/api/tasks/${id}/complete`, {}, authHeader())
