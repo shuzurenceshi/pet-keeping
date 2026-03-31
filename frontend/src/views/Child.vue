@@ -261,12 +261,14 @@ const revivePet = async () => {
   }
 }
 
-// 显示动画效果
-const showAnimation = (type) => {
+// 显示动画效果 + 底部消息提示
+const showAnimation = (type, message) => {
   animation.value = type
+  actionMessage.value = message
   setTimeout(() => {
     animation.value = null
-  }, 1500)
+    actionMessage.value = null
+  }, 2000)
 }
 
 // 洗澡
@@ -274,10 +276,10 @@ const bathPet = async () => {
   try {
     const res = await axios.post('/api/pet/bath', {}, authHeader())
     pet.value = res.data.pet
-    showAnimation('bath')
-    setTimeout(() => alert(res.data.message), 500)
+    showAnimation('bath', res.data.message)
   } catch (err) {
-    alert(err.response?.data?.error || '洗澡失败')
+    actionMessage.value = err.response?.data?.error || '洗澡失败'
+    setTimeout(() => actionMessage.value = null, 2000)
   }
 }
 
@@ -286,13 +288,13 @@ const readPet = async () => {
   try {
     const res = await axios.post('/api/pet/read', {}, authHeader())
     pet.value = res.data.pet
-    showAnimation('read')
     const msg = res.data.levelUp 
-      ? `${res.data.message}\n🎉 升级到 ${res.data.levelUp} 级！`
+      ? `${res.data.message}`
       : res.data.message
-    setTimeout(() => alert(msg), 500)
+    showAnimation('read', msg)
   } catch (err) {
-    alert(err.response?.data?.error || '读书失败')
+    actionMessage.value = err.response?.data?.error || '读书失败'
+    setTimeout(() => actionMessage.value = null, 2000)
   }
 }
 
@@ -301,13 +303,10 @@ const exercisePet = async () => {
   try {
     const res = await axios.post('/api/pet/exercise', {}, authHeader())
     pet.value = res.data.pet
-    showAnimation('exercise')
-    const msg = res.data.levelUp
-      ? `${res.data.message}\n🎉 升级到 ${res.data.levelUp} 级！`
-      : res.data.message
-    setTimeout(() => alert(msg), 500)
+    showAnimation('exercise', res.data.message)
   } catch (err) {
-    alert(err.response?.data?.error || '运动失败')
+    actionMessage.value = err.response?.data?.error || '运动失败'
+    setTimeout(() => actionMessage.value = null, 2000)
   }
 }
 
@@ -316,10 +315,10 @@ const playPet = async () => {
   try {
     const res = await axios.post('/api/pet/play', {}, authHeader())
     pet.value = res.data.pet
-    showAnimation('play')
-    setTimeout(() => alert(res.data.message), 500)
+    showAnimation('play', res.data.message)
   } catch (err) {
-    alert(err.response?.data?.error || '玩耍失败')
+    actionMessage.value = err.response?.data?.error || '玩耍失败'
+    setTimeout(() => actionMessage.value = null, 2000)
   }
 }
 
