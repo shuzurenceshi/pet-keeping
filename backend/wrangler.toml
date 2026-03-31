@@ -1,8 +1,9 @@
 name = "pet-keeping-api"
 main = "src/worker.js"
 compatibility_date = "2024-03-30"
+account_id = "c1119e73537ab028455972057fa06376"
 
 [[d1_databases]]
 binding = "DB"
 database_name = "pet-keeping-db"
-database_id = ""  # 创建后填入
+database_id = "04624bf2-2c6b-44b8-844f-bfde555ad8f2"
