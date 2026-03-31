@@ -67,15 +67,40 @@
           </button>
         </div>
 
-        <!-- 动画效果 -->
-        <div v-if="animation" class="animation-overlay" :class="animation">
-          <div class="animation-content">
-            <span v-if="animation === 'feed'">🍖</span>
-            <span v-else-if="animation === 'bath'">🛁✨</span>
-            <span v-else-if="animation === 'read'">📚💡</span>
-            <span v-else-if="animation === 'exercise'">🏃💨</span>
-            <span v-else-if="animation === 'play'">🎾🎉</span>
+        <!-- 3D 动画效果 -->
+        <div class="pet-3d-container" :class="animation">
+          <div class="pet-3d">
+            <div class="pet-sprite-3d" :class="{ dead: !pet.is_alive }">
+              {{ pet.type === 'cat' ? '🐱' : '🐶' }}
+            </div>
           </div>
+          <!-- 特效 -->
+          <div v-if="animation === 'bath'" class="effects bath-effects">
+            <span v-for="i in 8" :key="i" class="splash droplet" :style="{ '--delay': i * 0.1 + 's', '--x': (Math.random() * 100 - 50) + 'px' }">💧</span>
+            <span class="bubbles">🫧</span>
+          </div>
+          <div v-if="animation === 'read'" class="effects read-effects">
+            <span class="book float">📖</span>
+            <span class="lightbulb">💡</span>
+            <span v-for="i in 3" :key="i" class="star twinkle" :style="{ '--delay': i * 0.2 + 's' }">✨</span>
+          </div>
+          <div v-if="animation === 'exercise'" class="effects exercise-effects">
+            <span v-for="i in 5" :key="i" class="sweat" :style="{ '--delay': i * 0.15 + 's', '--x': (i * 20 - 50) + 'px' }">💨</span>
+            <span class="heart-beat">💓</span>
+          </div>
+          <div v-if="animation === 'play'" class="effects play-effects">
+            <span class="ball bounce">🎾</span>
+            <span v-for="i in 6" :key="i" class="sparkle" :style="{ '--delay': i * 0.1 + 's', '--angle': i * 60 + 'deg' }">⭐</span>
+          </div>
+          <div v-if="animation === 'feed'" class="effects feed-effects">
+            <span class="food fall">🍖</span>
+            <span class="heart float-up">❤️</span>
+          </div>
+        </div>
+
+        <!-- 提示消息（非弹窗） -->
+        <div v-if="actionMessage" class="action-message" :class="{ show: actionMessage }">
+          {{ actionMessage }}
         </div>
       </div>
     </div>
